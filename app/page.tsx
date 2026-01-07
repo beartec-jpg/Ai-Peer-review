@@ -1,5 +1,4 @@
-// app/page.tsx
-'use client';
+'use client'; // Enables client-side features (hooks, state)
 
 import { useState, useEffect, useRef } from 'react';
 import QueryForm from '@/components/QueryForm';
@@ -7,7 +6,8 @@ import AnswerDisplay from '@/components/AnswerDisplay';
 import FollowupInput from '@/components/FollowupInput';
 import FollowupDisplay from '@/components/FollowupDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import type { Result, FollowupContext, FollowupResult } from '@/lib/types';
+import HistorySidebar from '@/components/HistorySidebar';
+import type { QueryHistory, Result, FollowupContext, FollowupResult } from '@/lib/types';
 import { generateFollowupSuggestions } from '@/lib/followup-service';
 
 const MAX_FOLLOWUPS = 5;
@@ -16,6 +16,7 @@ export default function HomePage() {
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fromCache, setFromCache] = useState(false);
   
   // Follow-up state
   const [showFollowup, setShowFollowup] = useState(false);
@@ -43,6 +44,7 @@ export default function HomePage() {
     // Reset state for new query
     setLoading(true);
     setError(null);
+    setFromCache(false);
     setShowFollowup(false);
     setFollowups([]);
     setFollowupContext(null);
@@ -52,11 +54,12 @@ export default function HomePage() {
       const response = await fetch('/api/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, userId: 'default' }),
       });
       if (!response.ok) throw new Error('API request failed');
       const data: Result = await response.json();
       setResult(data);
+      setFromCache(data.fromCache || false);
       
       // Initialize follow-up context
       const bestScore = Math.max(...Object.values(data.aggregatedScores));
@@ -126,57 +129,82 @@ export default function HomePage() {
     }
   };
 
+  const handleSelectHistory = (history: QueryHistory) => {
+    setResult(history.result);
+    setError(null);
+    setFromCache(history.cacheHit);
+    setShowFollowup(false);
+    setFollowups([]);
+    setFollowupContext(null);
+    setFollowupError(null);
+    // Scroll to top to show result
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="container mx-auto max-w-4xl p-6">
-      <h1 className="text-4xl font-bold text-center mb-8 dark:text-white">
-        Peer AI Reviewer
-      </h1>
-      <p className="text-center text-lg mb-8 text-gray-600 dark:text-gray-300">
-        Submit a coding query for multi-model peer-reviewed answers.
-      </p>
+    <div className="flex min-h-screen">
+      {/* Main content */}
+      <div className="flex-1 container mx-auto max-w-4xl p-6">
+        <h1 className="text-4xl font-bold text-center mb-8 dark:text-white">
+          Peer AI Reviewer
+        </h1>
+        <p className="text-center text-lg mb-8 text-gray-600 dark:text-gray-300">
+          Submit a coding query for multi-model peer-reviewed answers.
+        </p>
 
-      <QueryForm onSubmit={handleSubmit} />
+        <QueryForm onSubmit={handleSubmit} />
 
-      {loading && (
-        <div className="flex justify-center mt-8">
-          <LoadingSpinner size="lg" />
-        </div>
-      )}
+        {loading && (
+          <div className="flex justify-center mt-8">
+            <LoadingSpinner size="lg" />
+          </div>
+        )}
 
-      {error && (
-        <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg">
-          Error: {error}
-        </div>
-      )}
+        {error && (
+          <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg">
+            Error: {error}
+          </div>
+        )}
 
-      {result && (
-        <>
-          <AnswerDisplay result={result} onFollowupClick={handleFollowupClick} />
-          
-          {/* Follow-up section */}
-          {showFollowup && followupContext && (
-            <div ref={followupRef} className="mt-8">
-              <FollowupInput
-                onSubmit={handleFollowupSubmit}
-                isLoading={followupLoading}
-                estimatedCost={estimatedCost}
-                followupCount={followups.length}
-                maxFollowups={MAX_FOLLOWUPS}
-                suggestions={suggestions}
-              />
-              
-              {followupError && (
-                <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg">
-                  Error: {followupError}
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Display follow-up results */}
-          <FollowupDisplay followups={followups} />
-        </>
-      )}
+        {fromCache && result && (
+          <div className="mt-4 p-3 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-lg text-sm flex items-center">
+            <span className="mr-2">⚡</span>
+            <span>Loaded from cache - no API calls made!</span>
+          </div>
+        )}
+
+        {result && (
+          <>
+            <AnswerDisplay result={result} onFollowupClick={handleFollowupClick} />
+            
+            {/* Follow-up section */}
+            {showFollowup && followupContext && (
+              <div ref={followupRef} className="mt-8">
+                <FollowupInput
+                  onSubmit={handleFollowupSubmit}
+                  isLoading={followupLoading}
+                  estimatedCost={estimatedCost}
+                  followupCount={followups.length}
+                  maxFollowups={MAX_FOLLOWUPS}
+                  suggestions={suggestions}
+                />
+                
+                {followupError && (
+                  <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg">
+                    Error: {followupError}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Display follow-up results */}
+            <FollowupDisplay followups={followups} />
+          </>
+        )}
+      </div>
+
+      {/* History sidebar */}
+      <HistorySidebar onSelectHistory={handleSelectHistory} userId="default" />
     </div>
   );
 }
