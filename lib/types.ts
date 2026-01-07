@@ -20,6 +20,48 @@ export interface Result {
   aggregatedScores: Record<string, number>; // Avg scores per model (lowercase keys)
   bestAnswer: string; // The content of the highest-scoring final
   bestModel?: string; // The model name with the highest score
+  fromCache?: boolean; // Whether this result came from cache
+}
+
+// Extend for API responses or errors if needed
+export interface ApiError {
+  error: string;
+}
+
+// Query History types
+export interface QueryHistory {
+  id: string; // Unique identifier for the query
+  query: string; // The user's original query
+  result: Result; // The complete result from the peer review
+  userId: string; // User identifier (for multi-user support)
+  timestamp: number; // Unix timestamp when query was created
+  cacheHit: boolean; // Whether this result came from cache
+}
+
+// Cache metadata
+export interface CacheMetadata {
+  key: string; // Cache key
+  result: Result; // Cached result
+  timestamp: number; // When cached
+  ttl: number; // Time to live in seconds
+}
+
+// Cache statistics (for admin)
+export interface CacheStats {
+  totalQueries: number;
+  cacheHits: number;
+  cacheMisses: number;
+  hitRate: number; // Percentage
+  cacheSize: number; // Number of cached entries
+}
+
+// History filter options
+export interface HistoryFilter {
+  startDate?: number;
+  endDate?: number;
+  minScore?: number;
+  maxScore?: number;
+  searchQuery?: string;
 }
 
 // Follow-up query types
@@ -49,9 +91,4 @@ export interface FollowupResult {
   estimatedCost: number; // Cost estimate for this follow-up
   timestamp: number; // When this follow-up was answered
   context: FollowupContext; // Updated context including this follow-up
-}
-
-// Extend for API responses or errors if needed
-export interface ApiError {
-  error: string;
 }
