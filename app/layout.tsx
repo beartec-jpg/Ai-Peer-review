@@ -1,11 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from 'next';
-// import { Inter } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from 'next-themes'; // Optional: For dark mode toggle (npm install next-themes)
-
-// Font setup (Inter for clean, readable text)
-// const inter = Inter({ subsets: ['latin'] });
+import { ThemeProvider } from 'next-themes';
 
 // Metadata for SEO/head tags
 export const metadata: Metadata = {

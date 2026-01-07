@@ -3,6 +3,7 @@
 
 import { createHash } from 'crypto';
 import type { Result, CacheStats } from './types';
+import type Redis from 'ioredis';
 
 // In-memory cache as fallback (for development without Redis)
 const memoryCache = new Map<string, { result: Result; timestamp: number; ttl: number }>();
@@ -13,8 +14,7 @@ let cacheStats = {
 };
 
 // Redis client (lazy initialization)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let redisClient: any = null;
+let redisClient: Redis | null = null;
 
 // Initialize Redis client if REDIS_URL is available
 const getRedisClient = async () => {

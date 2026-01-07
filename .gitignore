@@ -33,7 +33,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Temporary files
+// Temporary files
 /tmp
 *.tmp
 *.temp
+
+# Local data storage
+/data

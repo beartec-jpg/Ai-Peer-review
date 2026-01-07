@@ -99,22 +99,26 @@ export const getUserHistory = async (
 
   // Apply filters
   if (filter) {
-    if (filter.startDate) {
-      userHistory = userHistory.filter(h => h.timestamp >= filter.startDate!);
+    if (filter.startDate !== undefined) {
+      const startDate = filter.startDate;
+      userHistory = userHistory.filter(h => h.timestamp >= startDate);
     }
-    if (filter.endDate) {
-      userHistory = userHistory.filter(h => h.timestamp <= filter.endDate!);
+    if (filter.endDate !== undefined) {
+      const endDate = filter.endDate;
+      userHistory = userHistory.filter(h => h.timestamp <= endDate);
     }
     if (filter.minScore !== undefined) {
+      const minScore = filter.minScore;
       userHistory = userHistory.filter(h => {
         const maxScore = Math.max(...Object.values(h.result.aggregatedScores));
-        return maxScore >= filter.minScore!;
+        return maxScore >= minScore;
       });
     }
     if (filter.maxScore !== undefined) {
+      const maxScore = filter.maxScore;
       userHistory = userHistory.filter(h => {
-        const maxScore = Math.max(...Object.values(h.result.aggregatedScores));
-        return maxScore <= filter.maxScore!;
+        const score = Math.max(...Object.values(h.result.aggregatedScores));
+        return score <= maxScore;
       });
     }
     if (filter.searchQuery) {
