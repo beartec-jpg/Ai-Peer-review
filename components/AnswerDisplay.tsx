@@ -1,21 +1,43 @@
 // components/AnswerDisplay.tsx
-import { Result } from '@/lib/types'; // Import your Result type (e.g., { query, initials, finals, ratings, aggregatedScores, bestAnswer })
+import { Result } from '@/lib/types';
 
 interface AnswerDisplayProps {
   result: Result;
+  onFollowupClick?: () => void;
 }
 
-export default function AnswerDisplay({ result }: AnswerDisplayProps) {
+export default function AnswerDisplay({ result, onFollowupClick }: AnswerDisplayProps) {
+  const bestScore = Math.max(...Object.values(result.aggregatedScores));
+  const bestModelName = result.bestModel 
+    ? result.bestModel.charAt(0).toUpperCase() + result.bestModel.slice(1)
+    : 'Unknown';
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       {/* Best Answer Highlight */}
       <section className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border-l-4 border-green-500">
-        <h2 className="text-2xl font-bold mb-2 text-green-800 dark:text-green-200">Best Peer-Reviewed Answer</h2>
-        <p className="text-sm text-green-600 dark:text-green-400 mb-4">
-          Selected based on aggregated ratings (avg score: {Math.max(...Object.values(result.aggregatedScores)).toFixed(1)}/10)
+        <div className="flex justify-between items-start mb-2">
+          <h2 className="text-2xl font-bold text-green-800 dark:text-green-200">
+            Best Peer-Reviewed Answer
+          </h2>
+          {onFollowupClick && (
+            <button
+              onClick={onFollowupClick}
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-sm flex items-center gap-2"
+            >
+              <span>💬</span>
+              Ask Follow-up
+            </button>
+          )}
+        </div>
+        <p className="text-sm text-green-600 dark:text-green-400 mb-2">
+          <strong>{bestModelName}</strong> selected based on aggregated ratings (avg score: {bestScore.toFixed(1)}/10)
+        </p>
+        <p className="text-xs text-green-600 dark:text-green-400 mb-4">
+          Want to dig deeper? Click &quot;Ask Follow-up&quot; to explore this answer further with the same model maintaining full context.
         </p>
         <div className="prose dark:prose-invert max-w-none">
-          <div className="code-block">{result.bestAnswer}</div> {/* Uses global .code-block class */}
+          <div className="code-block">{result.bestAnswer}</div>
         </div>
       </section>
 
