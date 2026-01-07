@@ -1,35 +1,18 @@
 // app/review/[id]/page.tsx
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { getReviewById } from '@/lib/reviews';
 import Link from 'next/link';
-
-async function getReview(id: string) {
-  const session = await auth();
-  if (!session) return null;
-
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/review/${id}`, {
-      cache: 'no-store',
-    });
-    
-    if (!response.ok) return null;
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to fetch review:', error);
-    return null;
-  }
-}
 
 export default async function ReviewDetailPage(props: { params: Promise<{ id: string }> }) {
   const session = await auth();
   
-  if (!session) {
+  if (!session || !session.user?.email) {
     redirect('/auth/signin');
   }
 
   const params = await props.params;
-  const review = await getReview(params.id);
+  const review = await getReviewById(params.id, session.user.email);
 
   if (!review) {
     return (

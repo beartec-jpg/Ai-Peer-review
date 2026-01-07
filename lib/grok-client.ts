@@ -6,19 +6,34 @@ import OpenAI from 'openai';
 const GROK_BASE_URL = 'https://api.x.ai/v1';
 const MODEL_NAME = 'grok-beta';
 
-// Initialize three separate clients for three personalities
+// === Initialize three separate clients for three personalities ===
 const grokCritical = new OpenAI({
-  apiKey: process.env.GROK_CRITICAL_KEY ?? '',
+  apiKey: process.env.GROK_CRITICAL_KEY || (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('GROK_CRITICAL_KEY is required in production');
+    }
+    return '';
+  })(),
   baseURL: GROK_BASE_URL,
 });
 
 const grokSupportive = new OpenAI({
-  apiKey: process.env.GROK_SUPPORTIVE_KEY ?? '',
+  apiKey: process.env.GROK_SUPPORTIVE_KEY || (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('GROK_SUPPORTIVE_KEY is required in production');
+    }
+    return '';
+  })(),
   baseURL: GROK_BASE_URL,
 });
 
 const grokTechnical = new OpenAI({
-  apiKey: process.env.GROK_TECHNICAL_KEY ?? '',
+  apiKey: process.env.GROK_TECHNICAL_KEY || (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('GROK_TECHNICAL_KEY is required in production');
+    }
+    return '';
+  })(),
   baseURL: GROK_BASE_URL,
 });
 

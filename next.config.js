@@ -18,7 +18,7 @@ const nextConfig = {
   },
 
   // Bundle AI SDKs on server (moved from experimental)
-  serverExternalPackages: ['@anthropic-ai/sdk', 'openai', '@google/generative-ai'],
+  serverExternalPackages: ['openai'],
 
   // Vercel-specific (auto-handled, but explicit for caching)
   generateEtags: true,

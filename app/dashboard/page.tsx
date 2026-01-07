@@ -1,36 +1,17 @@
 // app/dashboard/page.tsx
 import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
+import { auth, signOut } from '@/lib/auth';
+import { getUserReviews } from '@/lib/reviews';
 import Link from 'next/link';
-import { signOut } from '@/lib/auth';
-
-async function getReviewHistory() {
-  const session = await auth();
-  if (!session) return null;
-
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/review/history`, {
-      cache: 'no-store',
-    });
-    
-    if (!response.ok) return [];
-    
-    const data = await response.json();
-    return data.reviews || [];
-  } catch (error) {
-    console.error('Failed to fetch reviews:', error);
-    return [];
-  }
-}
 
 export default async function DashboardPage() {
   const session = await auth();
   
-  if (!session) {
+  if (!session || !session.user?.email) {
     redirect('/auth/signin');
   }
 
-  const reviews = await getReviewHistory();
+  const reviews = await getUserReviews(session.user.email);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
