@@ -130,6 +130,7 @@ export const runPeerReviewSequence = async (query: string) => {
       ratings,
       aggregatedScores: scores,
       bestAnswer,
+      bestModel,
     };
   } catch (error) {
     console.error('Sequence failed:', error);
