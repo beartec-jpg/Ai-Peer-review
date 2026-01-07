@@ -1,11 +1,11 @@
 // app/layout.tsx
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+// import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from 'next-themes'; // Optional: For dark mode toggle (npm install next-themes)
 
 // Font setup (Inter for clean, readable text)
-const inter = Inter({ subsets: ['latin'] });
+// const inter = Inter({ subsets: ['latin'] });
 
 // Metadata for SEO/head tags
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+      <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <main className="min-h-screen flex flex-col items-center justify-center p-4">
             {children}

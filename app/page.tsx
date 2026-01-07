@@ -6,10 +6,10 @@ import QueryForm from '@/components/QueryForm';
 import AnswerDisplay from '@/components/AnswerDisplay';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import HistorySidebar from '@/components/HistorySidebar';
-import type { QueryHistory } from '@/lib/types';
+import type { QueryHistory, Result } from '@/lib/types';
 
 export default function HomePage() {
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fromCache, setFromCache] = useState(false);

@@ -2,15 +2,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getHistoryById, deleteHistoryEntry } from '@/lib/history-service';
 
+interface RouteParams {
+  params: Promise<{ id: string }>;
+}
+
 // GET - Fetch specific history entry by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId') || 'default';
-    const { id } = params;
+    const { id } = await context.params;
 
     const entry = await getHistoryById(id, userId);
     
@@ -34,12 +38,12 @@ export async function GET(
 // DELETE - Delete specific history entry
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteParams
 ) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId') || 'default';
-    const { id } = params;
+    const { id } = await context.params;
 
     const deleted = await deleteHistoryEntry(id, userId);
     
