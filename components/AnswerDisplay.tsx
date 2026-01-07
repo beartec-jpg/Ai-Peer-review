@@ -24,7 +24,7 @@ export default function AnswerDisplay({ result }: AnswerDisplayProps) {
         <h3 className="text-xl font-semibold mb-4">Initial Answers</h3>
         {result.initials.map((answer) => (
           <div key={answer.model} className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-            <h4 className="font-medium text-blue-600 dark:text-blue-400">{answer.model}'s Initial Response</h4>
+            <h4 className="font-medium text-blue-600 dark:text-blue-400">{answer.model}&apos;s Initial Response</h4>
             <div className="code-block mt-2">{answer.content}</div>
           </div>
         ))}
@@ -38,7 +38,7 @@ export default function AnswerDisplay({ result }: AnswerDisplayProps) {
           return (
             <div key={answer.model} className="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <div className="flex justify-between items-center mb-2">
-                <h4 className="font-medium text-blue-600 dark:text-blue-400">{answer.model}'s Final</h4>
+                <h4 className="font-medium text-blue-600 dark:text-blue-400">{answer.model}&apos;s Final</h4>
                 <span className="px-2 py-1 bg-yellow-200 dark:bg-yellow-800 text-xs font-bold rounded">
                   Score: {score?.toFixed(1)}/10
                 </span>
@@ -55,7 +55,7 @@ export default function AnswerDisplay({ result }: AnswerDisplayProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {result.ratings.map((rating) => (
             <div key={rating.fromModel} className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <h4 className="font-medium">{rating.fromModel}'s Ratings</h4>
+              <h4 className="font-medium">{rating.fromModel}&apos;s Ratings</h4>
               <ul className="mt-2 space-y-1 text-sm">
                 {Object.entries(rating.scores).map(([model, score]) => (
                   <li key={model}>
