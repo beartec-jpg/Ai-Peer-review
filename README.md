@@ -1,40 +1,109 @@
-# Peer AI Reviewer
+# AI Peer Review
 
-A Next.js web app that orchestrates three AI models (Claude, GPT, Gemini) to generate, peer-review, and rate answers for complex coding queries. Deployed on Vercel for serverless magic.
+A Next.js web app that provides code peer reviews using three distinct Grok AI personalities: Critical, Supportive, and Technical. Features passwordless authentication via magic links and stores review history in a database.
 
 [![Vercel](https://theregister.s3.amazonaws.com/production/uploads/2021/05/vercel-logo.jpg)](https://vercel.com)  
-*Battle-tested code, powered by AI peers.*
+*Get personalized code reviews from three AI personalities.*
 
 ## Features
-- **Multi-Model Generation**: Initial answers from 3 top AIs.
-- **Peer Review Round**: Each model critiques the others and refines its output.
-- **Rating & Selection**: Mutual scoring to pick the best final answer.
-- **Coding-Focused**: Optimized prompts for accuracy, efficiency, and edge cases.
-- **Responsive UI**: Dark mode, loading states, and structured display of all rounds.
+
+### 🔐 Authentication
+- **Magic Link Authentication**: Passwordless sign-in via email
+- **Custom Domain Emails**: Sent from noreply@beartec.uk using Resend
+- **Session Management**: Powered by NextAuth.js v5
+- **Protected Routes**: Secure access to dashboard and reviews
+
+### 🧠 Three Grok AI Personalities
+Each review is analyzed by three distinct AI personalities:
+
+1. **Critical Grok** 🔴
+   - Harsh, merciless code reviewer
+   - Finds flaws, inefficiencies, and mistakes
+   - Direct, critical feedback
+
+2. **Supportive Grok** 🟢
+   - Encouraging mentor
+   - Constructive feedback with confidence building
+   - Supportive, growth-oriented tone
+
+3. **Technical Grok** 🔵
+   - Performance and security expert
+   - Focus on optimization and best practices
+   - Technical, detailed analysis
+
+### 💾 Database & Storage
+- User management with email verification
+- Review history storage
+- All three personality responses saved per review
+- SQLite database (Prisma ORM)
+
+### 🎨 UI Features
+- Responsive design with dark mode support
+- Sign-in page with email input
+- Magic link verification screen
+- Dashboard showing review history
+- Review detail page with side-by-side personality responses
+- Protected route middleware
 
 ## Tech Stack
-- **Framework**: Next.js 15 (App Router, TypeScript)
+- **Framework**: Next.js 15.1.4 (App Router, TypeScript)
+- **Auth**: NextAuth.js v5.0.0-beta.25
+- **Database**: Prisma ORM with SQLite (easily switchable to PostgreSQL)
+- **Email**: Resend v3.0.0
+- **AI**: Grok API (via x.ai using OpenAI SDK)
 - **Styling**: Tailwind CSS
-- **AI APIs**: Anthropic (Claude), OpenAI (GPT), Google Generative AI (Gemini)
-- **Deployment**: Vercel (serverless API routes)
-- **Other**: React Hook Form, Next Themes
+- **Deployment**: Vercel
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 20+
-- API Keys: Get from [Anthropic](https://console.anthropic.com/), [OpenAI](https://platform.openai.com/), [Google AI Studio](https://aistudio.google.com/)
+- Grok API Keys: Get 3 separate keys from [x.ai](https://x.ai)
+- Resend API Key: Get from [Resend](https://resend.com)
+- Custom domain configured with Resend (e.g., beartec.uk)
 
 ### Setup
-1. Clone/Fork the repo:
-2. Install dependencies:
-3. Add API keys to `.env.local` (create if missing):
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
-GOOGLE_API_KEY=AIza...
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/beartec-jpg/Ai-Peer-review.git
+   cd Ai-Peer-review
+   ```
 
-4. Run locally:
-   Open [http://localhost:3000](http://localhost:3000). Submit a query like "Write a debounce hook in React" to test.
+2. Install dependencies:
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+3. Create `.env.local` file:
+   ```env
+   # Grok API Keys (3 separate keys for different personalities)
+   GROK_CRITICAL_KEY=xai-...your-grok-critical-key...
+   GROK_SUPPORTIVE_KEY=xai-...your-grok-supportive-key...
+   GROK_TECHNICAL_KEY=xai-...your-grok-technical-key...
+
+   # NextAuth Configuration
+   NEXTAUTH_SECRET=your-nextauth-secret-here
+   NEXTAUTH_URL=http://localhost:3000
+
+   # Resend Email Configuration
+   RESEND_API_KEY=re_...your-resend-key...
+   EMAIL_FROM=noreply@beartec.uk
+
+   # Database
+   DATABASE_URL="file:./dev.db"
+   ```
+
+4. Set up the database:
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+5. Run locally:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000)
 
 ### Build & Lint
 - Build: `npm run build` (checks for errors)
@@ -42,49 +111,133 @@ GOOGLE_API_KEY=AIza...
 - Type Check: `npm run type-check`
 
 ## Usage
-1. Enter a coding query in the form (e.g., "Implement binary search in JS with explanations").
-2. Wait ~30-60s for the sequence (initials → reviews → ratings).
-3. View: Best answer highlighted, plus breakdowns of all rounds.
 
-**Example Query**: "Build a React component for user auth with error handling."  
-**Output**: Refined code + scores (e.g., Claude: 9.2/10).
+1. **Sign In**: Enter your email to receive a magic link
+2. **Submit Code**: Paste your code in the review form
+3. **Wait**: Reviews take 30-60 seconds (three AI calls)
+4. **View Results**: See all three personality reviews side-by-side
+5. **History**: Access past reviews from your dashboard
+
+**Example Flow**:
+- Sign in with email → Receive magic link → Click link
+- Paste code → Submit → View Critical, Supportive, and Technical reviews
+- Return to dashboard to see all past reviews
 
 ## Deployment to Vercel
-1. Push to GitHub.
-2. Connect repo in [Vercel Dashboard](https://vercel.com/new).
-3. Add env vars (ANTHROPIC_API_KEY, etc.) in Project Settings > Environment Variables.
-4. Deploy: Auto-builds on push. Custom domain? Add in Domains tab.
 
-**Costs**: ~$2-4 per query (API tokens). Monitor in Vercel Analytics.
+1. Push to GitHub
+
+2. Connect repo in [Vercel Dashboard](https://vercel.com/new)
+
+3. Add environment variables in Project Settings > Environment Variables:
+   ```
+   GROK_CRITICAL_KEY=...
+   GROK_SUPPORTIVE_KEY=...
+   GROK_TECHNICAL_KEY=...
+   RESEND_API_KEY=...
+   EMAIL_FROM=noreply@beartec.uk
+   NEXTAUTH_SECRET=... (generate with: openssl rand -base64 32)
+   NEXTAUTH_URL=https://your-domain.vercel.app
+   DATABASE_URL=... (use Vercel Postgres or external DB)
+   ```
+
+4. Deploy: Auto-builds on push
+
+5. **For Production Database**: Switch from SQLite to PostgreSQL:
+   ```bash
+   # Update prisma/schema.prisma datasource to:
+   datasource db {
+     provider = "postgresql"
+     url      = env("DATABASE_URL")
+   }
+   ```
 
 ## Project Structure
-peer-ai-reviewer/
-├── app/                  # Pages & API routes
-├── components/           # UI: QueryForm, AnswerDisplay, etc.
-├── lib/                  # Utils: ai-client.ts, peer-review.ts, types.ts
-├── public/               # Static: favicon.ico, og-image.png
-├── .env.local            # Secrets (gitignored)
-├── next.config.js        # Config
-├── tailwind.config.ts    # Styling
-├── tsconfig.json         # TS
-└── package.json          # Deps
+```
+ai-peer-review/
+├── app/
+│   ├── api/
+│   │   ├── auth/[...nextauth]/    # NextAuth API routes
+│   │   └── review/                # Review API endpoints
+│   ├── auth/                      # Auth pages (signin, verify, error)
+│   ├── dashboard/                 # Review history dashboard
+│   ├── review/[id]/               # Individual review detail page
+│   ├── layout.tsx                 # Root layout
+│   └── page.tsx                   # Main review submission page
+├── components/                    # UI components
+├── lib/
+│   ├── auth.ts                    # NextAuth configuration
+│   ├── grok-client.ts             # Grok AI client with 3 personalities
+│   ├── prisma.ts                  # Prisma client singleton
+│   └── types.ts                   # TypeScript interfaces
+├── prisma/
+│   ├── schema.prisma              # Database schema
+│   └── migrations/                # Database migrations
+├── middleware.ts                  # Protected route middleware
+├── .env.local                     # Local environment variables
+└── package.json                   # Dependencies
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/signin` - Send magic link
+- `GET /api/auth/callback/*` - Handle magic link callback
+
+### Reviews (Protected)
+- `POST /api/review` - Submit code for review
+- `GET /api/review/history` - Get user's review history
+- `GET /api/review/[id]` - Get specific review with all 3 personalities
 
 ## Customization
-- **Swap Models**: Edit `lib/ai-client.ts` (e.g., add Grok via xAI API: https://x.ai/api).
-- **Prompts**: Tweak in `lib/peer-review.ts` for non-coding use.
-- **Rate Limiting**: Add to `app/api/review/route.ts` (e.g., via `upstash/ratelimit`).
-- **Monetization**: Integrate Stripe in API for paid queries.
+
+### Personality Prompts
+Edit `lib/grok-client.ts` to customize the system prompts for each personality.
+
+### Add More Personalities
+1. Add new Grok API key to environment variables
+2. Create new client in `lib/grok-client.ts`
+3. Add new response field to Prisma schema
+4. Update UI to display new personality
+
+### Switch Database
+Update `prisma/schema.prisma` datasource to use PostgreSQL, MySQL, or other supported databases.
+
+### Rate Limiting
+Add rate limiting middleware using `upstash/ratelimit` for production.
 
 ## Troubleshooting
-- **API Errors**: Check Vercel logs (Functions tab). Rate limits? Add retries in `lib/peer-review.ts`.
-- **Token Costs**: Monitor via provider dashboards; cap `max_tokens` in ai-client.
-- **Build Fails**: Ensure deps match `package.json`; run `npm ci`.
+
+### Build Errors
+- Ensure all dependencies are installed: `npm install --legacy-peer-deps`
+- Check Node.js version: `node --version` (should be 20+)
+
+### Authentication Issues
+- Verify `NEXTAUTH_SECRET` is set (generate: `openssl rand -base64 32`)
+- Check `NEXTAUTH_URL` matches your deployment URL
+- Verify Resend API key and domain configuration
+
+### Database Issues
+- Run migrations: `npx prisma migrate dev`
+- Regenerate client: `npx prisma generate`
+- For production, use PostgreSQL instead of SQLite
+
+### API Errors
+- Check Vercel logs (Functions tab) for detailed error messages
+- Verify all 3 Grok API keys are correctly set
+- Monitor token usage on x.ai dashboard
 
 ## Contributing
-Fork, PRs welcome! Focus: More models, streaming responses, VS Code extension.
+Fork the repo and submit PRs! Focus areas:
+- Additional AI personalities
+- Streaming responses
+- Code syntax highlighting
+- Review comparison tools
+- Export reviews to PDF
 
 ## License
-
+MIT
 
 ---
 
+Built with ❤️ using Next.js, Grok AI, and NextAuth.js
