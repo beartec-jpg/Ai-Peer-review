@@ -1,10 +1,12 @@
-// app/api/review/route.ts
+// app/api/review/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getThreePersonalityReviews } from '@/lib/grok-client';
 
-export async function POST(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
   try {
     // Check authentication
     const session = await auth();
@@ -12,15 +14,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { code } = await request.json();
-    if (!code || typeof code !== 'string') {
-      return NextResponse.json({ error: 'Missing or invalid code' }, { status: 400 });
-    }
-
-    // Get reviews from all three Grok personalities
-    const reviews = await getThreePersonalityReviews(code.trim());
-
-    // Find or create user
+    // Find user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
@@ -29,24 +23,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Save review to database
-    const review = await prisma.review.create({
-      data: {
-        userId: user.id,
-        codeSubmitted: code.trim(),
-        grokCriticalResponse: reviews.critical,
-        grokSupportiveResponse: reviews.supportive,
-        grokTechnicalResponse: reviews.technical,
-      },
+    // Get params
+    const { id } = await context.params;
+
+    // Get specific review
+    const review = await prisma.review.findUnique({
+      where: { id },
     });
+
+    if (!review) {
+      return NextResponse.json({ error: 'Review not found' }, { status: 404 });
+    }
+
+    // Check if review belongs to user
+    if (review.userId !== user.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     return NextResponse.json({
       id: review.id,
       code: review.codeSubmitted,
       reviews: {
-        critical: reviews.critical,
-        supportive: reviews.supportive,
-        technical: reviews.technical,
+        critical: review.grokCriticalResponse,
+        supportive: review.grokSupportiveResponse,
+        technical: review.grokTechnicalResponse,
+      },
+      scores: {
+        critical: review.criticalScore,
+        supportive: review.supportiveScore,
+        technical: review.technicalScore,
       },
       createdAt: review.createdAt,
     });

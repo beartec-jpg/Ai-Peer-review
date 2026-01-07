@@ -17,17 +17,11 @@ const nextConfig = {
     ],
   },
 
-  // Experimental features (optional: for better perf)
-  experimental: {
-    serverComponentsExternalPackages: ['@anthropic-ai/sdk', 'openai', '@google/generative-ai'], // Bundle AI SDKs on server
-  },
+  // Bundle AI SDKs on server (moved from experimental)
+  serverExternalPackages: ['@anthropic-ai/sdk', 'openai', '@google/generative-ai'],
 
   // Vercel-specific (auto-handled, but explicit for caching)
   generateEtags: true,
-  swcMinify: true,
-
-  // Output: 'standalone' for Docker if needed (default 'auto' for Vercel)
-  output: 'standalone',
 };
 
 module.exports = nextConfig;
