@@ -1,8 +1,7 @@
 // components/QueryForm.tsx
 'use client';
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form'; // npm install react-hook-form @hookform/resolvers (for validation)
+import { useForm } from 'react-hook-form';
 
 interface FormData {
   query: string;
@@ -19,7 +18,7 @@ export default function QueryForm({ onSubmit }: QueryFormProps) {
 
   const onFormSubmit = (data: FormData) => {
     onSubmit(data.query);
-    reset(); // Clear form after submit
+    reset();
   };
 
   return (

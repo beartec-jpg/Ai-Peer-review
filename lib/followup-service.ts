@@ -24,23 +24,23 @@ const withRetry = async <T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> =>
 
 // Build the context-aware prompt for follow-up
 const buildFollowupPrompt = (context: FollowupContext, followupQuery: string): string => {
-  let prompt = \`You are an expert coding assistant. You previously answered this query:\\n\\n\`;
-  prompt += \`**Original Query:** \${context.originalQuery}\\n\\n\`;
-  prompt += \`**Your Answer (Score: \${context.score.toFixed(1)}/10):**\\n\${context.chosenAnswer}\\n\\n\`;
+  let prompt = `You are an expert coding assistant. You previously answered this query:\n\n`;
+  prompt += `**Original Query:** ${context.originalQuery}\n\n`;
+  prompt += `**Your Answer (Score: ${context.score.toFixed(1)}/10):**\n${context.chosenAnswer}\n\n`;
   
   // Include follow-up chain if exists
   if (context.followupChain && context.followupChain.length > 0) {
-    prompt += \`**Previous Follow-up Conversation:**\\n\`;
+    prompt += `**Previous Follow-up Conversation:**\n`;
     context.followupChain.forEach((item, idx) => {
-      prompt += \`\${idx + 1}. Q: \${item.question}\\n\`;
-      prompt += \`   A: \${item.answer}\\n\\n\`;
+      prompt += `${idx + 1}. Q: ${item.question}\n`;
+      prompt += `   A: ${item.answer}\n\n`;
     });
   }
   
-  prompt += \`**New Follow-up Question:** \${followupQuery}\\n\\n\`;
-  prompt += \`Please provide a clear, accurate, and complete answer to this follow-up question. \`;
-  prompt += \`Build upon your previous answer and the conversation history. \`;
-  prompt += \`Include code snippets if relevant, and explain any changes or additions clearly.\`;
+  prompt += `**New Follow-up Question:** ${followupQuery}\n\n`;
+  prompt += `Please provide a clear, accurate, and complete answer to this follow-up question. `;
+  prompt += `Build upon your previous answer and the conversation history. `;
+  prompt += `Include code snippets if relevant, and explain any changes or additions clearly.`;
   
   return prompt;
 };
@@ -66,10 +66,10 @@ export const processFollowup = async (request: FollowupRequest): Promise<Followu
   // Check follow-up limit
   const followupCount = context.followupChain?.length || 0;
   if (followupCount >= MAX_FOLLOWUP_RETRIES) {
-    throw new Error(\`Follow-up limit reached (max \${MAX_FOLLOWUP_RETRIES} per query)\`);
+    throw new Error(`Follow-up limit reached (max ${MAX_FOLLOWUP_RETRIES} per query)`);
   }
   
-  console.log(\`Processing follow-up for model: \${context.chosenModel}\`);
+  console.log(`Processing follow-up for model: ${context.chosenModel}`);
   
   // Determine which model to call based on context
   const modelKey = context.chosenModel.toLowerCase() as 'claude' | 'gpt' | 'gemini';
@@ -104,7 +104,7 @@ export const processFollowup = async (request: FollowupRequest): Promise<Followu
     context: updatedContext,
   };
   
-  console.log(\`Follow-up completed. Chain length: \${updatedFollowupChain.length}\`);
+  console.log(`Follow-up completed. Chain length: ${updatedFollowupChain.length}`);
   
   return result;
 };
