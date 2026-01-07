@@ -34,7 +34,7 @@ const loadHistory = async (): Promise<QueryHistory[]> => {
     const data = await fs.readFile(HISTORY_FILE, 'utf-8');
     historyCache = JSON.parse(data);
     return historyCache || [];
-  } catch (error) {
+  } catch {
     // File doesn't exist or is invalid, return empty array
     historyCache = [];
     return historyCache;

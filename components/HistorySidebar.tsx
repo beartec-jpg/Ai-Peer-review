@@ -31,8 +31,8 @@ export default function HistorySidebar({ onSelectHistory, userId = 'default' }: 
       
       const data = await response.json();
       setHistory(data.history || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load history');
+    } catch {
+      setError('Failed to load history');
     } finally {
       setLoading(false);
     }
@@ -40,6 +40,7 @@ export default function HistorySidebar({ onSelectHistory, userId = 'default' }: 
 
   useEffect(() => {
     fetchHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, searchQuery]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
@@ -54,7 +55,7 @@ export default function HistorySidebar({ onSelectHistory, userId = 'default' }: 
       
       // Refresh history
       fetchHistory();
-    } catch (err) {
+    } catch {
       alert('Failed to delete entry');
     }
   };
@@ -176,7 +177,7 @@ export default function HistorySidebar({ onSelectHistory, userId = 'default' }: 
                   if (response.ok) {
                     fetchHistory();
                   }
-                } catch (err) {
+                } catch {
                   alert('Failed to clear history');
                 }
               }}

@@ -1,7 +1,6 @@
 // components/QueryForm.tsx
 'use client';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form'; // npm install react-hook-form @hookform/resolvers (for validation)
 
 interface FormData {

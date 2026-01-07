@@ -13,6 +13,7 @@ let cacheStats = {
 };
 
 // Redis client (lazy initialization)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let redisClient: any = null;
 
 // Initialize Redis client if REDIS_URL is available
