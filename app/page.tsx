@@ -1,4 +1,4 @@
-'use client'; // Enables client-side features (hooks, state)
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import QueryForm from '@/components/QueryForm';
@@ -17,8 +17,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fromCache, setFromCache] = useState(false);
-  
-  // Follow-up state
   const [showFollowup, setShowFollowup] = useState(false);
   const [followupLoading, setFollowupLoading] = useState(false);
   const [followupError, setFollowupError] = useState<string | null>(null);
@@ -26,11 +24,8 @@ export default function HomePage() {
   const [followupContext, setFollowupContext] = useState<FollowupContext | null>(null);
   const [estimatedCost, setEstimatedCost] = useState(0.51);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  
-  // Ref for scrolling to follow-up section
   const followupRef = useRef<HTMLDivElement>(null);
 
-  // Fetch cost estimate on mount
   useEffect(() => {
     fetch('/api/followup')
       .then(res => res.json())
@@ -40,8 +35,7 @@ export default function HomePage() {
 
   const handleSubmit = async (query: string) => {
     if (!query.trim()) return;
-    
-    // Reset state for new query
+
     setLoading(true);
     setError(null);
     setFromCache(false);
@@ -49,19 +43,20 @@ export default function HomePage() {
     setFollowups([]);
     setFollowupContext(null);
     setFollowupError(null);
-    
+
     try {
       const response = await fetch('/api/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, userId: 'default' }),
       });
+
       if (!response.ok) throw new Error('API request failed');
+
       const data: Result = await response.json();
       setResult(data);
       setFromCache(data.fromCache || false);
-      
-      // Initialize follow-up context
+
       const bestScore = Math.max(...Object.values(data.aggregatedScores));
       const context: FollowupContext = {
         originalQuery: data.query,
@@ -71,8 +66,6 @@ export default function HomePage() {
         followupChain: [],
       };
       setFollowupContext(context);
-      
-      // Generate suggestions
       const newSuggestions = generateFollowupSuggestions(context);
       setSuggestions(newSuggestions);
     } catch (err) {
@@ -84,7 +77,6 @@ export default function HomePage() {
 
   const handleFollowupClick = () => {
     setShowFollowup(true);
-    // Scroll to follow-up section after a brief delay to allow render
     setTimeout(() => {
       followupRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -92,34 +84,25 @@ export default function HomePage() {
 
   const handleFollowupSubmit = async (followupQuery: string) => {
     if (!followupContext) return;
-    
+
     setFollowupLoading(true);
     setFollowupError(null);
-    
+
     try {
       const response = await fetch('/api/followup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          followupQuery,
-          context: followupContext,
-        }),
+        body: JSON.stringify({ followupQuery, context: followupContext }),
       });
-      
+
       if (!response.ok) {
         const errData = await response.json();
         throw new Error(errData.error || 'Follow-up request failed');
       }
-      
+
       const data: FollowupResult = await response.json();
-      
-      // Add to followups list
       setFollowups(prev => [...prev, data]);
-      
-      // Update context for next follow-up
       setFollowupContext(data.context);
-      
-      // Generate new suggestions based on updated context
       const newSuggestions = generateFollowupSuggestions(data.context);
       setSuggestions(newSuggestions);
     } catch (err) {
@@ -137,17 +120,13 @@ export default function HomePage() {
     setFollowups([]);
     setFollowupContext(null);
     setFollowupError(null);
-    // Scroll to top to show result
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="flex min-h-screen">
-      {/* Main content */}
       <div className="flex-1 container mx-auto max-w-4xl p-6">
-        <h1 className="text-4xl font-bold text-center mb-8 dark:text-white">
-          Peer AI Reviewer
-        </h1>
+        <h1 className="text-4xl font-bold text-center mb-8 dark:text-white">Peer AI Reviewer</h1>
         <p className="text-center text-lg mb-8 text-gray-600 dark:text-gray-300">
           Submit a coding query for multi-model peer-reviewed answers.
         </p>
@@ -176,8 +155,7 @@ export default function HomePage() {
         {result && (
           <>
             <AnswerDisplay result={result} onFollowupClick={handleFollowupClick} />
-            
-            {/* Follow-up section */}
+
             {showFollowup && followupContext && (
               <div ref={followupRef} className="mt-8">
                 <FollowupInput
@@ -188,7 +166,7 @@ export default function HomePage() {
                   maxFollowups={MAX_FOLLOWUPS}
                   suggestions={suggestions}
                 />
-                
+
                 {followupError && (
                   <div className="mt-4 p-4 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-lg">
                     Error: {followupError}
@@ -196,14 +174,12 @@ export default function HomePage() {
                 )}
               </div>
             )}
-            
-            {/* Display follow-up results */}
+
             <FollowupDisplay followups={followups} />
           </>
         )}
       </div>
 
-      {/* History sidebar */}
       <HistorySidebar onSelectHistory={handleSelectHistory} userId="default" />
     </div>
   );
